@@ -1,0 +1,155 @@
+<table class="metadata-block">
+  <tbody>
+
+  {% comment %}
+    Populate variables for the concatenated fields
+  {% endcomment %}
+
+  {% if page.height_cm %}
+    {% if page.width_cm %}
+      {%- capture dimensions -%} 
+        {{ page.height_cm }} x {{ page.width_cm }} cm
+      {%- endcapture -%} 
+    {% endif %}
+  {% endif %}
+
+  {% if page.location_city %}
+    {%- capture city_url -%}
+      /{{ page.collection }}/locations/{{ page.location_city | slugify: 'latin' }}
+    {%- endcapture -%}
+    {%- capture location_info -%}   
+    <a href="{{ city_url | absolute_url }}/">{{ page.location_city }}</a>{% if page.location_country %}, {{ page.location_country }}{% endif %}
+    {%- endcapture -%}
+  {% endif %}
+
+  {% comment %}
+    Loop through the metadata object
+  {% endcomment %}
+
+  {% for item in include.meta %}
+    {% if item.value contains 'page.' %}
+      {% assign key = item.value | remove: 'page.' %}
+      {% assign value = page[key] %}
+    {% else %}
+      {% assign value = item.value %}
+    {% endif %}
+
+    {% comment %}
+      Populate the tabbed metadata array
+    {% endcomment %}
+
+    {% comment %}
+      Set non-displaying fields to nil
+    {% endcomment %}
+
+    {% case key %}
+      {% when "bibliography", "exhibition_history", "copies_and_variants", "provenance", "related_works", "curatorial_files", "discussion", "related_works_notes" %}
+        {% assign value = nil %}
+      {% when "dimensions" %}
+        {% assign value = dimensions %}
+      {% when "location_info" %}
+        {% if location_info | strip != "" %}
+          {% assign value = location_info | strip %}
+        {% endif %}
+      {% when "collection_info" %}
+        {% if collection_info | strip != "" %}
+          {% assign value = collection_info | strip %}
+        {% endif %}
+    {% endcase %}
+
+    {% comment %}
+      Only display non-empty values
+    {% endcomment %}
+
+    {% if value | strip != '' %}
+
+      {% if key == 'other_attribution_authorities' or key == 'further_inscription' %}
+        {% assign valueArray = value | split: '|' %}
+        {% assign value = valueArray | join: '<br />' %}
+      {% endif %}
+
+      {% if key == 'external_resources_title' %}
+        {% if page.external_resources_url %}
+          {%- capture external_resources_link -%}
+          <a href="{{ page.external_resources_url }}" target="blank">{{ page.external_resources_title }}</a>
+          {%- endcapture -%}
+          {% assign value = external_resources_link %}
+        {% endif %}
+      {% endif %}
+
+      {% if key == 'worktags' %}
+        {% assign parsed_worktags = value | split: "|" }
+        {% assign worktaglist_html = "" %}
+          {% for worktag in parsed_worktags %}
+            {%- capture worktag_url -%}
+              /{{ page.collection }}/tags/{{ worktag | slugify }}
+            {%- endcapture -%}
+            {%- capture worktag_html -%}
+              <a href="{{ worktag_url | absolute_url }}/">{{ worktag }}</a>{% unless forloop.last %}, {% endunless %}
+              {%- endcapture -%}
+            {% assign worktaglist_html = worktaglist_html | append: worktag_html %}
+          {% endfor %}
+        {% assign value = worktaglist_html %}
+      {% endif %}
+
+      {% if key == 'genre' %}
+        {%- capture genre_url -%}  
+          /{{ page.collection }}/genres/{{ page.genre | slugify }}
+        {%- endcapture -%}
+        {%- capture value -%}
+          <a href="{{ genre_url | absolute_url }}/">{{ page.genre }}</a>
+        {%- endcapture -%}
+      {% endif %}
+
+      {% if key == 'series' %}
+        {%- capture series_url -%}  
+          /{{ page.collection }}/series/{{ page.series | slugify }}
+        {%- endcapture -%}
+        {%- capture value -%}
+          <a href="{{ series_url | absolute_url }}/">{{ page.series }}</a>
+        {%- endcapture -%}
+      {% endif %}
+
+      {% if key == 'object_type' %}
+        {%- capture object_url -%}
+          /{{ page.collection }}/object-types/{{ page.object_type | slugify }}
+        {%- endcapture -%}
+        {%- capture value -%}
+          <a href="{{ object_url | absolute_url }}/">{{ page.object_type }}</a>
+        {%- endcapture -%}
+      {% endif %}
+
+      {% if key == 'diameter_cm' %}
+        {% assign value = value | append: " cm" %}
+      {% endif %}
+
+      {% if key == 'collaborators' or key == 'collectors_patrons' or key == 'publisher' or key == 'printmaker' %}
+        {% assign personArray = value | split: "|" %}
+        {% assign bioString = "" %}
+        {% for person in personArray %}
+          {% assign person_stripped = person | strip %}
+          {% assign bio = site.biographies | where: "label", person_stripped %}
+          {% if bio[0] != nil %}
+            {% assign bio_url = bio[0].permalink %}
+            {%- capture bio_entry -%}
+              <a href="{{ bio_url | absolute_url }}">{{ bio[0].label }}</a>
+            {%- endcapture -%}
+          {% else %}
+            {% assign bio_entry = person_stripped %}
+          {% endif %}
+          {% unless forloop.last %}
+            {% assign bio_entry = bio_entry | append: "<br />" %}
+          {% endunless %}
+          {% assign bioString = bioString | append: bio_entry %}
+        {% endfor %}
+        {% assign value = bioString %}
+
+      {% endif %}
+      <tr>
+        <td class="label">{{ item.label }}</td>
+        <td class="value">{{ value | strip }}</td>
+      </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>

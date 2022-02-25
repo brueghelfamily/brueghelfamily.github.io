@@ -1,0 +1,63 @@
+{% assign collection = site.[include.collection] | sort: "label" %}
+
+<div id="brueghel-gallery-{{ include.collection }}-container" class="brueghel-gallery-container container-fluid flex-column flex-md-row">
+	<div id="{{ include.collection }}-facet-buttons" class="facet-buttons col-12 col-md-2 flex-row flex-md-column"></div>
+  <div id="brueghel-gallery-{{ include.collection }}" class="brueghel-gallery col-12 col-md-10 ml-md-5"></div>
+</div>
+
+<script type="text/javascript">
+  $( document ).ready(function() {
+    var container = $('#brueghel-gallery-{{ include.collection }}-container');
+    var gallery = $('#brueghel-gallery-{{ include.collection }}');
+    var buttonDiv = $('#{{ include.collection }}-facet-buttons');
+
+    {% for item in collection %}
+      {% if include.facet_by == 'worktags' %}
+        {% assign facetvalue = item[include.facet_by] | slugify: "raw" | replace: "/", "-" | replace: "|", " " %}
+      {% elsif include.facet_by == 'location' %}
+        {% assign facetvalue = item['location_city'] | slugify: "latin" %}
+      {% else %}
+        {% assign facetvalue = item[include.facet_by] | slugify %}
+      {% endif %}
+
+      {%- capture item_html -%}
+        '{% include gallery_item.html value=facetvalue item=item %}'
+      {%- endcapture -%}
+      gallery.append({{ item_html | strip_newlines }});
+    {% endfor %}
+
+    {%- capture facet_html -%}
+      {% include browsing_facets.html vocab=include.facet_by artist=include.collection %}
+    {%- endcapture -%}
+      buttonDiv.append("<button class='btn facet allbutton active' data-filter='all'>show all</button>");
+      buttonDiv.append("{{ facet_html | strip_newlines }}");
+      $('.subcat').hide();
+
+    $(document).ready(function(){
+      $('.facet').click(function(){
+        var filterValue = $(this).attr('data-filter');
+        $('.facet').removeClass('active');
+        $(this).addClass('active');
+        if(filterValue == 'all') { $('.all').show(); $('.subcat').hide(); }
+        else { $('.all').hide(); $(`.${filterValue}`).show(); }
+      });
+    });
+
+    $(document).ready(function(){
+      $('.category').click(function(){
+        var filterValue = $(this).attr('data-filter');
+        if (this.classList.contains('active')) {
+          $('.subcat').removeClass('active');
+          $('.subcat').hide();
+          $('.all').show();
+          $(this).removeClass('active');
+          $('.allbutton').addClass('active');
+        } else {
+          $('.category').removeClass('active');
+          $(this).addClass('active');
+          $('.subcat').hide(); $(`.${filterValue}`).toggle();
+        }
+      })
+    });
+  });
+</script>

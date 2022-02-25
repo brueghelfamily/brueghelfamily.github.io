@@ -1,0 +1,42 @@
+---
+layout: default
+---
+
+{% comment %}
+  The block below controls the image viewer
+{% endcomment %}
+
+{% if page.image_viewer %}
+  {% assign viewer = page.image_viewer %}
+{% elsif layout.image_viewer %}
+  {% assign viewer = layout.image_viewer %}
+{% endif %}
+
+<div class="item-view"> 
+  
+  <div class="order-1 order-md-2 col-12 col-md">
+    {% include simple_image_viewer.html full_image=page.fullwidth %}
+  </div>
+
+  {% comment %}
+    The block below controls the item metadata table
+  {% endcomment %}
+
+  {% if layout.meta.size %}
+    {% assign metadata = layout.meta %}
+  {% elsif page.meta.size %}
+    {% assign metadata = page.meta %}
+  {% endif %}
+  {% if metadata.size %}
+    <div id="main-metadata" class="order-2 order-md-1 col-12 col-md">
+      <h3 alt="{{ page.label }}" class="item-title">{{ page.label }}</h3>
+      {% include item_metadata.html meta=metadata %}
+    </div>
+    <div id="tabbed-metadata" class="order-3 col-12">
+      {% include tabbed_metadata.html meta=metadata %}
+    </div>
+  {% endif %}
+
+{% include image_modal.html %}
+
+</div>

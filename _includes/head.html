@@ -1,0 +1,28 @@
+{% if page.url contains 'pieterbruegel' %}
+  {% assign stylesheet = '/assets/pieterbruegel.css' %}
+  {% assign titlebar = 'Pieter Bruegel Complete Catalog' %}
+{% else %}
+  {% assign stylesheet = '/assets/janbrueghel.css' %}
+  {% assign titlebar = site.title %}
+{% endif %}
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>    
+    {{ titlebar }}{% if page.label %} | {{ page.label }}{% elsif page.title %} | {{ page.title }}{% endif %}
+  </title>
+
+  <link rel="canonical" href="{{ page.url | absolute_url }}"/>
+  <link rel="icon" type="image/png" href="{{ '/img/favicon.png' | absolute_url }}">
+  <link rel="stylesheet" href="{{ stylesheet | absolute_url }}"/>
+  {% if page.url contains 'iit' %}
+  <link rel="stylesheet" href="{{ '/assets/iitstyles.css' | absolute_url }}"/>
+  {% endif %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <script type="text/javascript" src="{{ '/assets/jquery-3.2.1.min.js' | absolute_url }}"></script>
+  <noscript><p>Please enable JavaScript in your browser.</p></noscript>
+</head>
