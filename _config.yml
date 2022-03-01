@@ -20,7 +20,7 @@
 
 title:            'Jan Brueghel Complete Catalog'
 description:      'Jan Brueghel Complete Catalog'
-url:              'https://brueghelfamily.github.io'
+url:              'http://janbrueghel.net'
 baseurl:          '/'
 copyright:        '2021'
 logo:             '/img/favicon.png'
